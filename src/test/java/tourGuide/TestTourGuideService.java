@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.util.*;
 
 import gpsUtil.location.Location;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import org.junit.jupiter.api.Test;
 
 import gpsUtil.GpsUtil;
