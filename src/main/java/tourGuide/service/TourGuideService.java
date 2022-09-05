@@ -147,6 +147,41 @@ public class TourGuideService {
 		return nearByAttractions;
 	}
 
+	public UserNearByAttractions getNearTenAttractions(User user) {
+		UserNearByAttractions nearByAttractions = new UserNearByAttractions();
+		nearByAttractions.setNearByAttractions(new ArrayList<>());
+
+		VisitedLocation visitedLocation = getUserLocation(user);
+		nearByAttractions.setUserLocation(visitedLocation.location);
+
+		Map<Double, Attraction> nearByAttractionsMap = new TreeMap<>();
+
+		List<Attraction> attractions = gpsUtil.getAttractions();
+		for (Attraction attraction : attractions) {
+			nearByAttractionsMap.put(rewardsService.getDistance(attraction, getUserLocation(user).location), attraction);
+		}
+
+		List<Attraction> closest10Attractions = nearByAttractionsMap
+				.entrySet()
+				.stream()
+				.limit(10)
+				.collect(
+						ArrayList::new, (attraction, e) -> attraction.add(e.getValue()), ArrayList::addAll
+				);
+
+		closest10Attractions.forEach(
+				attraction -> {
+					NearByAttraction nearByAttraction = new NearByAttraction();
+					nearByAttraction.setAttractionName(attraction.attractionName);
+					nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
+					nearByAttraction.setDistance(rewardsService.getDistance(attraction, visitedLocation.location));
+					nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
+					nearByAttractions.getNearByAttractions().add(nearByAttraction);
+				}
+		);
+		return nearByAttractions;
+	}
+
 
 	public HashMap<String, Location> getAllCurrentLocations() {
 		HashMap<String, Location> allCurrentLocations = new HashMap<>();
