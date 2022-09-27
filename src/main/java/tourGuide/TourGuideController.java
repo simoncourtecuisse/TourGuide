@@ -2,6 +2,7 @@ package tourGuide;
 
 import java.util.List;
 
+import gpsUtil.location.Attraction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -46,6 +47,16 @@ public class TourGuideController {
 //    	VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
 //    	return JsonStream.serialize(tourGuideService.getNearByAttractions(visitedLocation));
 //    }
+    @RequestMapping("/get5Attractions")
+    public List<Attraction> get5Attractions(@RequestParam String userName){
+        return tourGuideService.get5Attractions(getUser(userName));
+    }
+
+    @RequestMapping("/get10Attractions")
+    public List<Attraction> get10Attractions(@RequestParam String userName){
+        return tourGuideService.get10Attractions(getUser(userName));
+    }
+
     @RequestMapping("/getNearbyAttractions")
     public UserNearByAttractions getNearbyAttractions(@RequestParam String userName){
         return tourGuideService.getNearFiveAttractions(getUser(userName));

@@ -112,6 +112,26 @@ public class TourGuideService {
 //		return nearFiveAttractions;
 //	}
 
+	public List<Attraction> get5Attractions(User user) {
+		List<Attraction> attractions = gpsUtil.getAttractions();
+		VisitedLocation visitedLocation = getUserLocation(user);
+
+		return attractions.stream()
+				.sorted(Comparator.comparing(attraction -> rewardsService.getDistance(visitedLocation.location, attraction)))
+				.limit(5)
+				.collect(Collectors.toList());
+	}
+
+	public List<Attraction> get10Attractions(User user) {
+		List<Attraction> attractions = gpsUtil.getAttractions();
+		VisitedLocation visitedLocation = getUserLocation(user);
+
+		return attractions.stream()
+				.sorted(Comparator.comparing(attraction -> rewardsService.getDistance(visitedLocation.location, attraction)))
+				.limit(10)
+				.collect(Collectors.toList());
+	}
+
 	public UserNearByAttractions getNearFiveAttractions(User user) {
 		UserNearByAttractions nearByAttractions = new UserNearByAttractions();
 		nearByAttractions.setNearByAttractions(new ArrayList<>());

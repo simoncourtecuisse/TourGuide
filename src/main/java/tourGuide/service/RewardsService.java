@@ -78,7 +78,7 @@ public class RewardsService {
 //            });
 //        });
 //    }
-public void calculateRewards(User user) {
+public List<UserReward> calculateRewards(User user) {
     List<VisitedLocation> userLocations = user.getVisitedLocations();
     List<Attraction> allAttractions = gpsUtil.getAttractions();
     List<VisitedLocation> locations = new ArrayList<>(userLocations);
@@ -97,11 +97,10 @@ public void calculateRewards(User user) {
             }
         }
     }
-//
-//    rewards.stream().map(reward -> CompletableFuture.supplyAsync(() -> getRewardPoints(reward.attraction, user), executorService)
-//            .thenAccept((points) -> user.addUserReward(new UserReward(user.getLastVisitedLocation(), reward.attraction, points))));
 
-
+    rewards.stream().map(reward -> CompletableFuture.supplyAsync(() -> getRewardPoints(reward.attraction, user), executorService)
+            .thenAccept((points) -> user.addUserReward(new UserReward(user.getLastVisitedLocation(), reward.attraction, points))));
+    return user.getUserRewards();
 }
 
     public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
