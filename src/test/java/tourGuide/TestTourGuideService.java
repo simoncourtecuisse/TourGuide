@@ -163,6 +163,7 @@ public class TestTourGuideService {
 		tourGuideService.trackUserLocation(user).join();
 
 		List<Attraction> attractionsList = tourGuideService.getNearByAttractions(user.getLastVisitedLocation());
+		System.out.println(attractionsList);
 
 		tourGuideService.tracker.stopTracking();
 
@@ -181,6 +182,7 @@ public class TestTourGuideService {
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 
 		List<Provider> providers = tourGuideService.getTripDeals(user);
+		System.out.println(providers);
 
 		tourGuideService.tracker.stopTracking();
 

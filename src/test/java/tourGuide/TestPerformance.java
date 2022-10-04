@@ -55,12 +55,35 @@ public class TestPerformance {
 	 */
 
 	//@Ignore
+//	@Test
+//	public void highVolumeTrackLocation() {
+//		GpsUtilService gpsUtilService = new GpsUtilService();
+//		RewardsService rewardsService = new RewardsService(gpsUtilService, new RewardCentral());
+//		// Users should be incremented up to 100,000, and test finishes within 15 minutes
+//		InternalTestHelper.setInternalUserNumber(1000);
+//		TourGuideService tourGuideService = new TourGuideService(gpsUtilService, rewardsService);
+//
+//		List<User> allUsers = new ArrayList<>();
+//		allUsers = tourGuideService.getAllUsers();
+//
+//		StopWatch stopWatch = new StopWatch();
+//		stopWatch.start();
+//		for(User user : allUsers) {
+//			tourGuideService.trackUserLocation(user);
+//		}
+//		stopWatch.stop();
+//		tourGuideService.tracker.stopTracking();
+//
+//		System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
+//		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+//	}
+
 	@Test
 	public void highVolumeTrackLocation() {
 		GpsUtilService gpsUtilService = new GpsUtilService();
 		RewardsService rewardsService = new RewardsService(gpsUtilService, new RewardCentral());
 		// Users should be incremented up to 100,000, and test finishes within 15 minutes
-		InternalTestHelper.setInternalUserNumber(100);
+		InternalTestHelper.setInternalUserNumber(100000);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtilService, rewardsService);
 
 		List<User> allUsers = new ArrayList<>();
@@ -68,12 +91,11 @@ public class TestPerformance {
 
 		StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-//		for(User user : allUsers) {
-//			tourGuideService.trackUserLocation(user);
-//		}
 
-		ExecutorService executorService = Executors.newFixedThreadPool(100);
-		allUsers.stream().map(user -> CompletableFuture.supplyAsync(() -> tourGuideService.trackUserLocation(user), executorService));
+		CompletableFuture<?>[] completableFutures = allUsers.stream()
+						.map(tourGuideService.tracker::trackUserLocation)
+								.toArray(CompletableFuture[]::new);
+		CompletableFuture.allOf(completableFutures).join();
 
 		stopWatch.stop();
 		tourGuideService.tracker.stopTracking();
@@ -81,6 +103,33 @@ public class TestPerformance {
 		System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
 		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
 	}
+
+//	@Test
+//	public void highVolumeTrackLocation() {
+//		GpsUtilService gpsUtilService = new GpsUtilService();
+//		RewardsService rewardsService = new RewardsService(gpsUtilService, new RewardCentral());
+//		// Users should be incremented up to 100,000, and test finishes within 15 minutes
+//		InternalTestHelper.setInternalUserNumber(10000000);
+//		TourGuideService tourGuideService = new TourGuideService(gpsUtilService, rewardsService);
+//
+//		List<User> allUsers = new ArrayList<>();
+//		allUsers = tourGuideService.getAllUsers();
+//
+//		StopWatch stopWatch = new StopWatch();
+//		stopWatch.start();
+////		for(User user : allUsers) {
+////			tourGuideService.trackUserLocation(user);
+////		}
+//
+//		ExecutorService executorService = Executors.newFixedThreadPool(100);
+//		allUsers.stream().map(user -> CompletableFuture.supplyAsync(() -> tourGuideService.trackUserLocation(user), executorService));
+//
+//		stopWatch.stop();
+//		tourGuideService.tracker.stopTracking();
+//
+//		System.out.println("highVolumeTrackLocation: Time Elapsed: " + TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()) + " seconds.");
+//		assertTrue(TimeUnit.MINUTES.toSeconds(15) >= TimeUnit.MILLISECONDS.toSeconds(stopWatch.getTime()));
+//	}
 
 	@Ignore
 	@Test
@@ -102,8 +151,8 @@ public class TestPerformance {
 
 
 //		allUsers.forEach(u -> rewardsService.calculateRewards(u));
-		List<CompletableFuture<List<UserReward>>> getRewards = allUsers.stream().map(user -> CompletableFuture.supplyAsync(() -> rewardsService.calculateRewards(user), executorService)).collect(Collectors.toList());
-		getRewards.stream().map(CompletableFuture::join).collect(Collectors.toList());
+//		List<CompletableFuture<List<UserReward>>> getRewards = allUsers.stream().map(user -> CompletableFuture.supplyAsync(() -> rewardsService.calculateRewards(user), executorService)).collect(Collectors.toList());
+//		getRewards.stream().map(CompletableFuture::join).collect(Collectors.toList());
 
 		for(User user : allUsers) {
 			assertTrue(user.getUserRewards().size() > 0);

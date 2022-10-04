@@ -15,17 +15,6 @@ import java.util.concurrent.*;
 
 @Service
 public class RewardsService {
-
-    ThreadPoolExecutor executorService = new ThreadPoolExecutor(
-            5,
-            8,
-            1,
-            TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(3),
-            Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.DiscardOldestPolicy()//Will wait and try.
-    );
-
     private static final double STATUTE_MILES_PER_NAUTICAL_MILE = 1.15077945;
     private final GpsUtilService gpsUtilService;
     private final RewardCentral rewardsCentral;
@@ -33,6 +22,8 @@ public class RewardsService {
     private int defaultProximityBuffer = 10;
     private int proximityBuffer = defaultProximityBuffer;
     private int attractionProximityRange = 200;
+
+    private final ExecutorService executorService = Executors.newFixedThreadPool(100);
 
     public RewardsService(GpsUtilService gpsUtilService, RewardCentral rewardCentral) {
         this.gpsUtilService = gpsUtilService;
@@ -78,30 +69,46 @@ public class RewardsService {
 //            });
 //        });
 //    }
-public List<UserReward> calculateRewards(User user) {
-    List<VisitedLocation> userLocations = user.getVisitedLocations();
-    List<Attraction> allAttractions = gpsUtilService.getAttractions();
-    List<VisitedLocation> locations = new ArrayList<>(userLocations);
-    List<UserReward> rewards = new ArrayList<>();
+//public List<UserReward> calculateRewards(User user) {
+//    List<VisitedLocation> userLocations = user.getVisitedLocations();
+//    List<Attraction> allAttractions = gpsUtilService.getAttractions();
+//    List<VisitedLocation> locations = new ArrayList<>(userLocations);
+//    List<UserReward> rewards = new ArrayList<>();
+//
+//    for(Attraction attraction : allAttractions) {
+//        for(VisitedLocation userLocation : locations) {
+//            if(nearAttraction(userLocation, attraction)) {
+//
+//                //Si user n'a pas encore eu la recompense :
+//                if (user.getUserRewards().stream().noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
+//                    UserReward userReward = new UserReward(userLocation, attraction, 0);
+//                    user.addUserReward(userReward);
+//                    rewards.add(userReward);
+//                }
+//            }
+//        }
+//    }
+//
+//    rewards.stream().map(reward -> CompletableFuture.supplyAsync(() -> getRewardPoints(reward.attraction, user), executorService)
+//            .thenAccept((points) -> user.addUserReward(new UserReward(user.getLastVisitedLocation(), reward.attraction, points))));
+//    return user.getUserRewards();
+//}
 
-    for(Attraction attraction : allAttractions) {
-        for(VisitedLocation userLocation : locations) {
-            if(nearAttraction(userLocation, attraction)) {
-
-                //Si user n'a pas encore eu la recompense :
-                if (user.getUserRewards().stream().noneMatch(r -> r.attraction.attractionName.equals(attraction.attractionName))) {
-                    UserReward userReward = new UserReward(userLocation, attraction, 0);
-                    user.addUserReward(userReward);
-                    rewards.add(userReward);
-                }
-            }
-        }
+    public CompletableFuture<?> calculateRewards(User user) {
+        List<Attraction> allAttractions = gpsUtilService.getAttractions();
+        List<CompletableFuture<?>> futureList = new ArrayList<>();
+        futureList.add(CompletableFuture.runAsync(() ->
+                user.getVisitedLocations().forEach(u1 -> {
+                    allAttractions.stream()
+                            .filter(a -> nearAttraction(u1, a))
+                            .forEach(a -> {
+                                if (user.getUserRewards().stream().noneMatch(uR -> uR.attraction.attractionName.equals(a.attractionName))) {
+                                    user.addUserReward(new UserReward(u1, a , getRewardPoints(a, user)));
+                                }
+                            });
+                })));
+        return CompletableFuture.allOf(futureList.stream().toArray(CompletableFuture[]::new));
     }
-
-    rewards.stream().map(reward -> CompletableFuture.supplyAsync(() -> getRewardPoints(reward.attraction, user), executorService)
-            .thenAccept((points) -> user.addUserReward(new UserReward(user.getLastVisitedLocation(), reward.attraction, points))));
-    return user.getUserRewards();
-}
 
     public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
         return getDistance(attraction, location) > attractionProximityRange ? false : true;

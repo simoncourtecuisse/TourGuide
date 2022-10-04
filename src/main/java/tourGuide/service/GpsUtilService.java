@@ -21,15 +21,7 @@ public class GpsUtilService {
         this.gpsUtil = new GpsUtil();
     }
 
-    ThreadPoolExecutor executorService = new ThreadPoolExecutor(
-            5,
-            8,
-            1,
-            TimeUnit.SECONDS,
-            new LinkedBlockingQueue<>(3),
-            Executors.defaultThreadFactory(),
-            new ThreadPoolExecutor.DiscardOldestPolicy()//Will wait and try.
-    );
+    private final ExecutorService executorService = Executors.newFixedThreadPool(100);
 
     public List<Attraction> getAttractions() {
         return gpsUtil.getAttractions();

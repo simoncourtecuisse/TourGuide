@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 import gpsUtil.location.VisitedLocation;
 import tripPricer.Provider;
@@ -104,5 +105,9 @@ public class User {
 		return "User{" +
 				"userName='" + userName + '\'' +
 				'}';
+	}
+
+	public void addToVisitedLocations(CompletableFuture<VisitedLocation> visitedLocationCompletableFuture) {
+		visitedLocationCompletableFuture.join();
 	}
 }
