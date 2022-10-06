@@ -153,6 +153,10 @@ public class TestPerformance {
 //		allUsers.forEach(u -> rewardsService.calculateRewards(u));
 //		List<CompletableFuture<List<UserReward>>> getRewards = allUsers.stream().map(user -> CompletableFuture.supplyAsync(() -> rewardsService.calculateRewards(user), executorService)).collect(Collectors.toList());
 //		getRewards.stream().map(CompletableFuture::join).collect(Collectors.toList());
+		CompletableFuture<?>[] completableFutures = allUsers.stream()
+				.map(rewardsService::calculateRewards)
+				.toArray(CompletableFuture[]::new);
+		CompletableFuture.allOf(completableFutures).join();
 
 		for(User user : allUsers) {
 			assertTrue(user.getUserRewards().size() > 0);

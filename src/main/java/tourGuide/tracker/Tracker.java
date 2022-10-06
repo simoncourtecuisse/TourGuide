@@ -74,7 +74,7 @@ public class Tracker extends Thread {
             }
 
             stopWatch.start();
-			CompletableFuture<?>[] completableFuture = tourGuideService.getAllUsers().stream()
+            CompletableFuture<?>[] completableFuture = tourGuideService.getAllUsers().stream()
 					.map(this::trackUserLocation)
                     .toArray(CompletableFuture[]::new);
             CompletableFuture.allOf(completableFuture).join();
