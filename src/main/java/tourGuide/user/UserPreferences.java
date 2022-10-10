@@ -9,7 +9,7 @@ import org.javamoney.moneta.Money;
 public class UserPreferences {
 
 	private int attractionProximity = Integer.MAX_VALUE;
-	private CurrencyUnit currency = Monetary.getCurrency("USD");
+	private final CurrencyUnit currency = Monetary.getCurrency("USD");
 	private Money lowerPricePoint = Money.of(0, currency);
 	private Money highPricePoint = Money.of(Integer.MAX_VALUE, currency);
 	private int tripDuration = 1;
@@ -18,6 +18,15 @@ public class UserPreferences {
 	private int numberOfChildren = 0;
 
 	public UserPreferences() {
+	}
+	public UserPreferences(UserPreferencesDTO preferencesDTO) {
+		this.attractionProximity = preferencesDTO.getAttractionProximity();
+		this.lowerPricePoint = Money.of(preferencesDTO.getLowerPricePoint(), currency);
+		this.highPricePoint = Money.of(preferencesDTO.getHighPricePoint(), currency);
+		this.tripDuration = preferencesDTO.getTripDuration();
+		this.ticketQuantity = preferencesDTO.getTicketQuantity();
+		this.numberOfAdults = preferencesDTO.getNumberOfAdults();
+		this.numberOfChildren = preferencesDTO.getNumberOfChildren();
 	}
 
 	public void setAttractionProximity(int attractionProximity) {
@@ -74,6 +83,10 @@ public class UserPreferences {
 
 	public void setNumberOfChildren(int numberOfChildren) {
 		this.numberOfChildren = numberOfChildren;
+	}
+
+	public CurrencyUnit getCurrency() {
+		return currency;
 	}
 
 }

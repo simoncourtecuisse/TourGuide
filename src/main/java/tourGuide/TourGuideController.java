@@ -4,9 +4,7 @@ import java.util.List;
 
 import gpsUtil.location.Attraction;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.jsoniter.output.JsonStream;
 
@@ -14,6 +12,8 @@ import gpsUtil.location.VisitedLocation;
 import tourGuide.model.UserNearByAttractions;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
+import tourGuide.user.UserPreferences;
+import tourGuide.user.UserPreferencesDTO;
 import tripPricer.Provider;
 
 @RestController
@@ -91,6 +91,12 @@ public class TourGuideController {
     public String getTripDeals(@RequestParam String userName) {
         List<Provider> providers = tourGuideService.getTripDeals(getUser(userName));
         return JsonStream.serialize(providers);
+    }
+
+    @PutMapping("/userPreferences")
+    public String userPreferences(@RequestBody UserPreferencesDTO newPreferences) {
+        return JsonStream.serialize(
+                new UserPreferencesDTO(newPreferences.getUsername(), tourGuideService.updateUserPreferences(newPreferences)));
     }
 
     private User getUser(String userName) {

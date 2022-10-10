@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
@@ -64,7 +65,15 @@ public class TestRewardsService {
 		InternalTestHelper.setInternalUserNumber(1);
 		TourGuideService tourGuideService = new TourGuideService(gpsUtilService, rewardsService);
 
-		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0));
+//		rewardsService.calculateRewards(tourGuideService.getAllUsers().get(0)).join();
+//		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
+//		tourGuideService.tracker.stopTracking();
+
+		CompletableFuture<?>[] completableFutures = tourGuideService.getAllUsers().stream()
+				.map(rewardsService::calculateRewards)
+				.toArray(CompletableFuture[]::new);
+		CompletableFuture.allOf(completableFutures).join();
+
 		List<UserReward> userRewards = tourGuideService.getUserRewards(tourGuideService.getAllUsers().get(0));
 		tourGuideService.tracker.stopTracking();
 

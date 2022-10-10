@@ -12,6 +12,8 @@ import tourGuide.model.NearByAttraction;
 import tourGuide.model.UserNearByAttractions;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
+import tourGuide.user.UserPreferences;
+import tourGuide.user.UserPreferencesDTO;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
 import tripPricer.TripPricer;
@@ -89,11 +91,46 @@ public class TourGuideService {
     }
 
     public List<Provider> getTripDeals(User user) {
-        int cumulatativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
-        List<Provider> providers = tripPricer.getPrice(tripPricerApiKey, user.getUserId(), user.getUserPreferences().getNumberOfAdults(),
-                user.getUserPreferences().getNumberOfChildren(), user.getUserPreferences().getTripDuration(), cumulatativeRewardPoints);
+        int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
+
+        List<Provider> providers = tripPricer.getPrice(
+                tripPricerApiKey,
+                user.getUserId(),
+                user.getUserPreferences().getNumberOfAdults(),
+                user.getUserPreferences().getNumberOfChildren(),
+                user.getUserPreferences().getTripDuration(),
+                cumulativeRewardPoints);
         user.setTripDeals(providers);
         return providers;
+    }
+
+    public UserPreferences getUserPreferences(String username) {
+        return getUser(username).getUserPreferences();
+    }
+
+//    public UserPreferences updateUserPreferences(UserPreferencesDTO userPreferencesDTO) {
+//        UserPreferences updatedPreferences = new UserPreferences();
+//        updatedPreferences.setAttractionProximity(userPreferencesDTO.getAttractionProximity());
+//        updatedPreferences.setHighPricePoint(userPreferencesDTO.getHighPricePoint());
+//        updatedPreferences.setLowerPricePoint(userPreferencesDTO.getLowerPricePoint());
+//        updatedPreferences.setTicketQuantity(userPreferencesDTO.getTicketQuantity());
+//        updatedPreferences.setTripDuration(userPreferencesDTO.getTripDuration());
+//        updatedPreferences.setTripDuration(userPreferencesDTO.getTripDuration());
+//        updatedPreferences.setNumberOfAdults(userPreferencesDTO.getNumberOfAdults());
+//        updatedPreferences.setNumberOfChildren(userPreferencesDTO.getNumberOfChildren());
+//
+//        String username = userPreferencesDTO.getUsername();
+//        User user = getUser(username);
+//        user.setUserPreferences(updatedPreferences);
+//
+//        return updatedPreferences;
+//    }
+
+    public UserPreferences updateUserPreferences(UserPreferencesDTO userPreferencesDTO) {
+        User user = getUser(userPreferencesDTO.getUsername());
+        user.setUserPreferences(new UserPreferences(userPreferencesDTO));
+
+        return user.getUserPreferences();
     }
 
 //	public List<Attraction> getNearFiveAttractions(VisitedLocation visitedLocation, User user) {
