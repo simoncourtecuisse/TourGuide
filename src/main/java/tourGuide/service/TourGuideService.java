@@ -162,8 +162,20 @@ public class TourGuideService {
                 }));
     }
 
-    public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-        List<Attraction> nearbyAttractions = new ArrayList<>();
+//    public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
+//        List<Attraction> nearbyAttractions = new ArrayList<>();
+//        for (Attraction attraction : gpsUtilService.getAttractions()) {
+//            if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
+//                nearbyAttractions.add(attraction);
+//            }
+//        }
+//
+//        return nearbyAttractions;
+//    }
+
+    public List<Attraction> getNearByAttractions(User user) {
+        List<Attraction> nearbyAttractions = gpsUtilService.getAttractions();
+        VisitedLocation visitedLocation = getUserLocation(user);
         for (Attraction attraction : gpsUtilService.getAttractions()) {
             if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
                 nearbyAttractions.add(attraction);

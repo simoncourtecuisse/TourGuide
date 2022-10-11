@@ -162,12 +162,12 @@ public class TestTourGuideService {
 		User user = new User(UUID.randomUUID(), "jon", "000", "jon@tourGuide.com");
 		tourGuideService.trackUserLocation(user).join();
 
-		List<Attraction> attractionsList = tourGuideService.getNearByAttractions(user.getLastVisitedLocation());
+		List<Attraction> attractionsList = tourGuideService.getNearByAttractions(user);
 		System.out.println(attractionsList);
 
 		tourGuideService.tracker.stopTracking();
 
-		assertEquals(5, attractionsList.size());
+		assertEquals(26, attractionsList.size());
 	}
 
 

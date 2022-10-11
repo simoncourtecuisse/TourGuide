@@ -102,10 +102,10 @@ public class RewardsService {
                     allAttractions.stream()
                             .filter(a -> nearAttraction(u1, a))
                             .forEach(a -> {
-                                System.out.println(u1);
+                                //System.out.println(u1);
                                 if (user.getUserRewards().stream().noneMatch(uR -> uR.attraction.attractionName.equals(a.attractionName))) {
                                     user.addUserReward(new UserReward(u1, a , getRewardPoints(a, user)));
-                                    System.out.println(u1);
+                                    //System.out.println(u1);
                                 }
                             });
                 })));
