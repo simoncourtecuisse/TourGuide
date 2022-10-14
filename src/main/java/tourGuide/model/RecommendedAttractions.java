@@ -7,10 +7,18 @@ import java.util.List;
 /**
  * @author SimonC.
  */
-public class UserNearByAttractions {
+public class RecommendedAttractions {
 
     private Location userLocation;
     private List<NearByAttraction> nearByAttractions;
+
+    public RecommendedAttractions() {
+    }
+
+    public RecommendedAttractions(Location userLocation, List<NearByAttraction> nearByAttractions) {
+        this.userLocation = userLocation;
+        this.nearByAttractions = nearByAttractions;
+    }
 
     public Location getUserLocation() {
         return userLocation;

@@ -1,6 +1,5 @@
 package tourGuide.service;
 
-import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
@@ -9,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tourGuide.helper.InternalTestHelper;
 import tourGuide.model.NearByAttraction;
-import tourGuide.model.UserNearByAttractions;
+import tourGuide.model.RecommendedAttractions;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
 import tourGuide.user.UserPreferences;
@@ -108,24 +107,6 @@ public class TourGuideService {
         return getUser(username).getUserPreferences();
     }
 
-//    public UserPreferences updateUserPreferences(UserPreferencesDTO userPreferencesDTO) {
-//        UserPreferences updatedPreferences = new UserPreferences();
-//        updatedPreferences.setAttractionProximity(userPreferencesDTO.getAttractionProximity());
-//        updatedPreferences.setHighPricePoint(userPreferencesDTO.getHighPricePoint());
-//        updatedPreferences.setLowerPricePoint(userPreferencesDTO.getLowerPricePoint());
-//        updatedPreferences.setTicketQuantity(userPreferencesDTO.getTicketQuantity());
-//        updatedPreferences.setTripDuration(userPreferencesDTO.getTripDuration());
-//        updatedPreferences.setTripDuration(userPreferencesDTO.getTripDuration());
-//        updatedPreferences.setNumberOfAdults(userPreferencesDTO.getNumberOfAdults());
-//        updatedPreferences.setNumberOfChildren(userPreferencesDTO.getNumberOfChildren());
-//
-//        String username = userPreferencesDTO.getUsername();
-//        User user = getUser(username);
-//        user.setUserPreferences(updatedPreferences);
-//
-//        return updatedPreferences;
-//    }
-
     public UserPreferences updateUserPreferences(UserPreferencesDTO userPreferencesDTO) {
         User user = getUser(userPreferencesDTO.getUsername());
         user.setUserPreferences(new UserPreferences(userPreferencesDTO));
@@ -133,26 +114,6 @@ public class TourGuideService {
         return user.getUserPreferences();
     }
 
-//	public List<Attraction> getNearFiveAttractions(VisitedLocation visitedLocation, User user) {
-//		visitedLocation = user.getLastVisitedLocation();
-//		Location location = visitedLocation.location;
-//		List<Attraction> attractions = new ArrayList<>();
-//		List<Attraction> nearFiveAttractions = getNearByAttractions(visitedLocation);
-//
-//		for (Attraction attraction: gpsUtil.getAttractions()) {
-//			nearFiveAttractions
-//
-//		}
-//
-//		return nearFiveAttractions;
-//	}
-
-    //	public VisitedLocation trackUserLocation(User user) {
-//		VisitedLocation visitedLocation = gpsUtil.getUserLocation(user.getUserId());
-//		user.addToVisitedLocations(visitedLocation);
-//		rewardsService.calculateRewards(user);
-//		return visitedLocation;
-//	}
     public CompletableFuture<VisitedLocation> trackUserLocation(User user) {
         return gpsUtilService.getUserLocation(user)
                 .thenApply((visitedLocation -> {
@@ -161,17 +122,6 @@ public class TourGuideService {
                     return visitedLocation;
                 }));
     }
-
-//    public List<Attraction> getNearByAttractions(VisitedLocation visitedLocation) {
-//        List<Attraction> nearbyAttractions = new ArrayList<>();
-//        for (Attraction attraction : gpsUtilService.getAttractions()) {
-//            if (rewardsService.isWithinAttractionProximity(attraction, visitedLocation.location)) {
-//                nearbyAttractions.add(attraction);
-//            }
-//        }
-//
-//        return nearbyAttractions;
-//    }
 
     public List<Attraction> getNearByAttractions(User user) {
         List<Attraction> nearbyAttractions = gpsUtilService.getAttractions();
@@ -185,9 +135,18 @@ public class TourGuideService {
         return nearbyAttractions;
     }
 
-    public List<Attraction> get5Attractions(User user) {
+//    public List<Attraction> get5Attractions(User user) {
+//        List<Attraction> attractions = gpsUtilService.getAttractions();
+//        VisitedLocation visitedLocation = getUserLocation(user);
+//
+//        return attractions.stream()
+//                .sorted(Comparator.comparing(attraction -> rewardsService.getDistance(visitedLocation.location, attraction)))
+//                .limit(5)
+//                .collect(Collectors.toList());
+//    }
+
+    public List<Attraction> get5Attractions(VisitedLocation visitedLocation) {
         List<Attraction> attractions = gpsUtilService.getAttractions();
-        VisitedLocation visitedLocation = getUserLocation(user);
 
         return attractions.stream()
                 .sorted(Comparator.comparing(attraction -> rewardsService.getDistance(visitedLocation.location, attraction)))
@@ -205,8 +164,29 @@ public class TourGuideService {
                 .collect(Collectors.toList());
     }
 
-    public UserNearByAttractions getNearFiveAttractions(User user) {
-        UserNearByAttractions nearByAttractions = new UserNearByAttractions();
+    public RecommendedAttractions getRecommendedAttractions(String username) {
+        RecommendedAttractions recommendedAttractions = new RecommendedAttractions();
+        User user = getUser(username);
+        VisitedLocation visitedLocation = user.getLastVisitedLocation();
+        Location location = visitedLocation.location;
+        List<NearByAttraction> attractionsList = new ArrayList<>();
+
+        List<Attraction> nearByAttractions = get5Attractions(visitedLocation);
+        for (Attraction attraction : nearByAttractions) {
+            NearByAttraction nearByAttraction = new NearByAttraction();
+            nearByAttraction.setAttractionName(attraction.attractionName);
+            nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
+            nearByAttraction.setDistance(rewardsService.getDistance(attraction, location));
+            nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
+            attractionsList.add(nearByAttraction);
+        }
+        recommendedAttractions.setUserLocation(location);
+        recommendedAttractions.setNearByAttractions(attractionsList);
+        return recommendedAttractions;
+    }
+
+    public RecommendedAttractions getNearFiveAttractions(User user) {
+        RecommendedAttractions nearByAttractions = new RecommendedAttractions();
         nearByAttractions.setNearByAttractions(new ArrayList<>());
 
         VisitedLocation visitedLocation = getUserLocation(user);
@@ -240,8 +220,8 @@ public class TourGuideService {
         return nearByAttractions;
     }
 
-    public UserNearByAttractions getNearTenAttractions(User user) {
-        UserNearByAttractions nearByAttractions = new UserNearByAttractions();
+    public RecommendedAttractions getNearTenAttractions(User user) {
+        RecommendedAttractions nearByAttractions = new RecommendedAttractions();
         nearByAttractions.setNearByAttractions(new ArrayList<>());
 
         VisitedLocation visitedLocation = getUserLocation(user);

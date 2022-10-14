@@ -10,10 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import com.jsoniter.output.JsonStream;
 
 import gpsUtil.location.VisitedLocation;
-import tourGuide.model.UserNearByAttractions;
+import tourGuide.model.RecommendedAttractions;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
-import tourGuide.user.UserPreferences;
 import tourGuide.user.UserPreferencesDTO;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
@@ -59,9 +58,14 @@ public class TourGuideController {
         return tourGuideService.getNearByAttractions(getUser(userName));
     }
 
+//    @RequestMapping("/get5Attractions")
+//    public List<Attraction> get5Attractions(@RequestParam String userName){
+//        return tourGuideService.get5Attractions(getUser(userName));
+//    }
+
     @RequestMapping("/get5Attractions")
     public List<Attraction> get5Attractions(@RequestParam String userName){
-        return tourGuideService.get5Attractions(getUser(userName));
+        return tourGuideService.get5Attractions(getUser(userName).getLastVisitedLocation());
     }
 
     @RequestMapping("/get10Attractions")
@@ -70,7 +74,7 @@ public class TourGuideController {
     }
 
     @RequestMapping("/getTenNearbyAttractions")
-    public UserNearByAttractions getTenNearbyAttractions(@RequestParam String userName){
+    public RecommendedAttractions getTenNearbyAttractions(@RequestParam String userName){
         return tourGuideService.getNearTenAttractions(getUser(userName));
     }
 

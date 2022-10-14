@@ -12,6 +12,16 @@ public class NearByAttraction {
     private double distance;
     private int rewardPoints;
 
+    public NearByAttraction() {
+    }
+
+    public NearByAttraction(String attractionName, Location attractionLocation, double distance, int rewardPoints) {
+        this.attractionName = attractionName;
+        this.attractionLocation = attractionLocation;
+        this.distance = distance;
+        this.rewardPoints = rewardPoints;
+    }
+
     public String getAttractionName() {
         return attractionName;
     }
