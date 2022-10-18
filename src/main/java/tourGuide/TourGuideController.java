@@ -1,21 +1,27 @@
 package tourGuide;
 
-import java.util.List;
-
+import com.jsoniter.output.JsonStream;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.Location;
+import gpsUtil.location.VisitedLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import com.jsoniter.output.JsonStream;
-
-import gpsUtil.location.VisitedLocation;
 import tourGuide.model.RecommendedAttractions;
+import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
 import tourGuide.user.UserPreferencesDTO;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @RestController
 public class TourGuideController {
@@ -23,12 +29,15 @@ public class TourGuideController {
     @Autowired
     TourGuideService tourGuideService;
 
+    @Autowired
+    RewardsService rewardsService;
+
     @RequestMapping("/")
     public String index() {
         return "Greetings from TourGuide!";
     }
 
-//    @RequestMapping("/getLocation")
+    //    @RequestMapping("/getLocation")
 //    public String getLocation(@RequestParam String userName) {
 //        VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
 //        return JsonStream.serialize(visitedLocation.location);
@@ -53,8 +62,9 @@ public class TourGuideController {
 //    	VisitedLocation visitedLocation = tourGuideService.getUserLocation(getUser(userName));
 //    	return JsonStream.serialize(tourGuideService.getNearByAttractions(visitedLocation));
 //    }
+
     @RequestMapping("/getNearbyAttractions")
-    public List<Attraction> getNearbyAttractions(@RequestParam String userName){
+    public List<Attraction> getNearbyAttractions(@RequestParam String userName) {
         return tourGuideService.getNearByAttractions(getUser(userName));
     }
 
@@ -64,23 +74,46 @@ public class TourGuideController {
 //    }
 
     @RequestMapping("/get5Attractions")
-    public List<Attraction> get5Attractions(@RequestParam String userName){
+    public List<Attraction> get5Attractions(@RequestParam String userName) {
         return tourGuideService.get5Attractions(getUser(userName).getLastVisitedLocation());
     }
 
     @RequestMapping("/get10Attractions")
-    public List<Attraction> get10Attractions(@RequestParam String userName){
+    public List<Attraction> get10Attractions(@RequestParam String userName) {
         return tourGuideService.get10Attractions(getUser(userName));
     }
 
     @RequestMapping("/getTenNearbyAttractions")
-    public RecommendedAttractions getTenNearbyAttractions(@RequestParam String userName){
+    public RecommendedAttractions getTenNearbyAttractions(@RequestParam String userName) {
         return tourGuideService.getNearTenAttractions(getUser(userName));
     }
 
+    //    @RequestMapping("/getRewards")
+//    public List<UserReward> getRewards(@RequestParam String userName) {
+//        return tourGuideService.getUserRewards(getUser(userName));
+//    }
+
     @RequestMapping("/getRewards")
-    public List<UserReward> getRewards(@RequestParam String userName) {
-        return tourGuideService.getUserRewards(getUser(userName));
+    public Object getRewards(@RequestParam String userName) throws ExecutionException, InterruptedException, TimeoutException {
+        List<UserReward> userRewards = new ArrayList<>();
+        CompletableFuture<?> completableFuture = rewardsService.calculateRewards(getUser(userName));
+        userRewards.add((UserReward) completableFuture.join());
+        //= userRewards = rewardsService.calculateRewards(getUser(userName));
+       //CompletableFuture<?> completableFuture = rewardsService.calculateRewards(getUser(userName));
+
+//        CompletableFuture[] completableFuture = userRewards.stream()
+//                .map(calcule -> rewardsService.calculateRewards(getUser(userName)))
+//                .toArray(CompletableFuture[]::new);
+//
+//
+
+//        CompletableFuture.allOf(completableFuture).get(50, TimeUnit.MILLISECONDS);
+        // completableFuture.stream().map(CompletableFuture::join).collect(Collectors.toList())
+
+//        CompletableFuture.allOf(completableFuture).join();
+        //userRewards.add(completableFuture);
+        //userRewards.stream().map()
+       return userRewards;
     }
 
     @RequestMapping("/getAllCurrentLocations")
