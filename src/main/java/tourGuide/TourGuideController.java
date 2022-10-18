@@ -88,32 +88,9 @@ public class TourGuideController {
         return tourGuideService.getNearTenAttractions(getUser(userName));
     }
 
-    //    @RequestMapping("/getRewards")
-//    public List<UserReward> getRewards(@RequestParam String userName) {
-//        return tourGuideService.getUserRewards(getUser(userName));
-//    }
-
-    @RequestMapping("/getRewards")
-    public Object getRewards(@RequestParam String userName) throws ExecutionException, InterruptedException, TimeoutException {
-        List<UserReward> userRewards = new ArrayList<>();
-        CompletableFuture<?> completableFuture = rewardsService.calculateRewards(getUser(userName));
-        userRewards.add((UserReward) completableFuture.join());
-        //= userRewards = rewardsService.calculateRewards(getUser(userName));
-       //CompletableFuture<?> completableFuture = rewardsService.calculateRewards(getUser(userName));
-
-//        CompletableFuture[] completableFuture = userRewards.stream()
-//                .map(calcule -> rewardsService.calculateRewards(getUser(userName)))
-//                .toArray(CompletableFuture[]::new);
-//
-//
-
-//        CompletableFuture.allOf(completableFuture).get(50, TimeUnit.MILLISECONDS);
-        // completableFuture.stream().map(CompletableFuture::join).collect(Collectors.toList())
-
-//        CompletableFuture.allOf(completableFuture).join();
-        //userRewards.add(completableFuture);
-        //userRewards.stream().map()
-       return userRewards;
+        @RequestMapping("/getRewards")
+    public List<UserReward> getRewards(@RequestParam String userName) {
+        return tourGuideService.getUserRewards(getUser(userName));
     }
 
     @RequestMapping("/getAllCurrentLocations")
