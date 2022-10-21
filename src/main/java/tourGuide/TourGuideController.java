@@ -6,7 +6,6 @@ import gpsUtil.location.Location;
 import gpsUtil.location.VisitedLocation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import tourGuide.model.RecommendedAttractions;
 import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
@@ -14,14 +13,7 @@ import tourGuide.user.UserPreferencesDTO;
 import tourGuide.user.UserReward;
 import tripPricer.Provider;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RestController
 public class TourGuideController {
@@ -68,27 +60,12 @@ public class TourGuideController {
         return tourGuideService.getNearByAttractions(getUser(userName));
     }
 
-//    @RequestMapping("/get5Attractions")
-//    public List<Attraction> get5Attractions(@RequestParam String userName){
-//        return tourGuideService.get5Attractions(getUser(userName));
-//    }
-
-    @RequestMapping("/get5Attractions")
-    public List<Attraction> get5Attractions(@RequestParam String userName) {
-        return tourGuideService.get5Attractions(getUser(userName).getLastVisitedLocation());
+    @RequestMapping("/getFiveAttractions")
+    public List<Attraction> getFiveAttractions(@RequestParam String userName) {
+        return tourGuideService.getFiveAttractions(getUser(userName).getLastVisitedLocation());
     }
 
-    @RequestMapping("/get10Attractions")
-    public List<Attraction> get10Attractions(@RequestParam String userName) {
-        return tourGuideService.get10Attractions(getUser(userName));
-    }
-
-    @RequestMapping("/getTenNearbyAttractions")
-    public RecommendedAttractions getTenNearbyAttractions(@RequestParam String userName) {
-        return tourGuideService.getNearTenAttractions(getUser(userName));
-    }
-
-        @RequestMapping("/getRewards")
+    @RequestMapping("/getRewards")
     public List<UserReward> getRewards(@RequestParam String userName) {
         return tourGuideService.getUserRewards(getUser(userName));
     }

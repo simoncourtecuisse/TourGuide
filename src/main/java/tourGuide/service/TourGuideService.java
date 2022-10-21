@@ -135,125 +135,73 @@ public class TourGuideService {
         return nearbyAttractions;
     }
 
-//    public List<Attraction> get5Attractions(User user) {
-//        List<Attraction> attractions = gpsUtilService.getAttractions();
-//        VisitedLocation visitedLocation = getUserLocation(user);
+    public List<Attraction> getFiveAttractions(VisitedLocation visitedLocation) {
+        List<Attraction> attractions = gpsUtilService.getAttractions();
+
+        return attractions.stream()
+                .sorted(Comparator.comparing(attraction -> rewardsService.getDistance(visitedLocation.location, attraction)))
+                .limit(5)
+                .collect(Collectors.toList());
+    }
+
+
+//    public RecommendedAttractions getRecommendedAttractions(String username) {
+//        RecommendedAttractions recommendedAttractions = new RecommendedAttractions();
+//        User user = getUser(username);
+//        VisitedLocation visitedLocation = user.getLastVisitedLocation();
+//        Location location = visitedLocation.location;
+//        List<NearByAttraction> attractionsList = new ArrayList<>();
 //
-//        return attractions.stream()
-//                .sorted(Comparator.comparing(attraction -> rewardsService.getDistance(visitedLocation.location, attraction)))
-//                .limit(5)
-//                .collect(Collectors.toList());
+//        List<Attraction> nearByAttractions = getFiveAttractions(visitedLocation);
+//        for (Attraction attraction : nearByAttractions) {
+//            NearByAttraction nearByAttraction = new NearByAttraction();
+//            nearByAttraction.setAttractionName(attraction.attractionName);
+//            nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
+//            nearByAttraction.setDistance(rewardsService.getDistance(attraction, location));
+//            nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
+//            attractionsList.add(nearByAttraction);
+//        }
+//        recommendedAttractions.setUserLocation(location);
+//        recommendedAttractions.setNearByAttractions(attractionsList);
+//        return recommendedAttractions;
 //    }
 
-    public List<Attraction> get5Attractions(VisitedLocation visitedLocation) {
-        List<Attraction> attractions = gpsUtilService.getAttractions();
+//    public RecommendedAttractions getNearFiveAttractions(User user) {
+//        RecommendedAttractions nearByAttractions = new RecommendedAttractions();
+//        nearByAttractions.setNearByAttractions(new ArrayList<>());
+//
+//        VisitedLocation visitedLocation = getUserLocation(user);
+//        nearByAttractions.setUserLocation(visitedLocation.location);
+//
+//        Map<Double, Attraction> nearByAttractionsMap = new TreeMap<>();
+//
+//        List<Attraction> attractions = gpsUtilService.getAttractions();
+//        for (Attraction attraction : attractions) {
+//            nearByAttractionsMap.put(rewardsService.getDistance(attraction, getUserLocation(user).location), attraction);
+//        }
+//
+//        List<Attraction> closest5Attractions = nearByAttractionsMap
+//                .entrySet()
+//                .stream()
+//                .limit(5)
+//                .collect(
+//                        ArrayList::new, (attraction, e) -> attraction.add(e.getValue()), ArrayList::addAll
+//                );
+//
+//        closest5Attractions.forEach(
+//                attraction -> {
+//                    NearByAttraction nearByAttraction = new NearByAttraction();
+//                    nearByAttraction.setAttractionName(attraction.attractionName);
+//                    nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
+//                    nearByAttraction.setDistance(rewardsService.getDistance(attraction, visitedLocation.location));
+//                    nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
+//                    nearByAttractions.getNearByAttractions().add(nearByAttraction);
+//                }
+//        );
+//        return nearByAttractions;
+//    }
 
-        return attractions.stream()
-                .sorted(Comparator.comparing(attraction -> rewardsService.getDistance(visitedLocation.location, attraction)))
-                .limit(5)
-                .collect(Collectors.toList());
-    }
 
-    public List<Attraction> get10Attractions(User user) {
-        List<Attraction> attractions = gpsUtilService.getAttractions();
-        VisitedLocation visitedLocation = getUserLocation(user);
-
-        return attractions.stream()
-                .sorted(Comparator.comparing(attraction -> rewardsService.getDistance(visitedLocation.location, attraction)))
-                .limit(10)
-                .collect(Collectors.toList());
-    }
-
-    public RecommendedAttractions getRecommendedAttractions(String username) {
-        RecommendedAttractions recommendedAttractions = new RecommendedAttractions();
-        User user = getUser(username);
-        VisitedLocation visitedLocation = user.getLastVisitedLocation();
-        Location location = visitedLocation.location;
-        List<NearByAttraction> attractionsList = new ArrayList<>();
-
-        List<Attraction> nearByAttractions = get5Attractions(visitedLocation);
-        for (Attraction attraction : nearByAttractions) {
-            NearByAttraction nearByAttraction = new NearByAttraction();
-            nearByAttraction.setAttractionName(attraction.attractionName);
-            nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
-            nearByAttraction.setDistance(rewardsService.getDistance(attraction, location));
-            nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
-            attractionsList.add(nearByAttraction);
-        }
-        recommendedAttractions.setUserLocation(location);
-        recommendedAttractions.setNearByAttractions(attractionsList);
-        return recommendedAttractions;
-    }
-
-    public RecommendedAttractions getNearFiveAttractions(User user) {
-        RecommendedAttractions nearByAttractions = new RecommendedAttractions();
-        nearByAttractions.setNearByAttractions(new ArrayList<>());
-
-        VisitedLocation visitedLocation = getUserLocation(user);
-        nearByAttractions.setUserLocation(visitedLocation.location);
-
-        Map<Double, Attraction> nearByAttractionsMap = new TreeMap<>();
-
-        List<Attraction> attractions = gpsUtilService.getAttractions();
-        for (Attraction attraction : attractions) {
-            nearByAttractionsMap.put(rewardsService.getDistance(attraction, getUserLocation(user).location), attraction);
-        }
-
-        List<Attraction> closest5Attractions = nearByAttractionsMap
-                .entrySet()
-                .stream()
-                .limit(5)
-                .collect(
-                        ArrayList::new, (attraction, e) -> attraction.add(e.getValue()), ArrayList::addAll
-                );
-
-        closest5Attractions.forEach(
-                attraction -> {
-                    NearByAttraction nearByAttraction = new NearByAttraction();
-                    nearByAttraction.setAttractionName(attraction.attractionName);
-                    nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
-                    nearByAttraction.setDistance(rewardsService.getDistance(attraction, visitedLocation.location));
-                    nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
-                    nearByAttractions.getNearByAttractions().add(nearByAttraction);
-                }
-        );
-        return nearByAttractions;
-    }
-
-    public RecommendedAttractions getNearTenAttractions(User user) {
-        RecommendedAttractions nearByAttractions = new RecommendedAttractions();
-        nearByAttractions.setNearByAttractions(new ArrayList<>());
-
-        VisitedLocation visitedLocation = getUserLocation(user);
-        nearByAttractions.setUserLocation(visitedLocation.location);
-
-        Map<Double, Attraction> nearByAttractionsMap = new TreeMap<>();
-
-        List<Attraction> attractions = gpsUtilService.getAttractions();
-        for (Attraction attraction : attractions) {
-            nearByAttractionsMap.put(rewardsService.getDistance(attraction, getUserLocation(user).location), attraction);
-        }
-
-        List<Attraction> closest10Attractions = nearByAttractionsMap
-                .entrySet()
-                .stream()
-                .limit(10)
-                .collect(
-                        ArrayList::new, (attraction, e) -> attraction.add(e.getValue()), ArrayList::addAll
-                );
-
-        closest10Attractions.forEach(
-                attraction -> {
-                    NearByAttraction nearByAttraction = new NearByAttraction();
-                    nearByAttraction.setAttractionName(attraction.attractionName);
-                    nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
-                    nearByAttraction.setDistance(rewardsService.getDistance(attraction, visitedLocation.location));
-                    nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
-                    nearByAttractions.getNearByAttractions().add(nearByAttraction);
-                }
-        );
-        return nearByAttractions;
-    }
 
     public HashMap<String, Location> getAllCurrentLocations() {
         HashMap<String, Location> allCurrentLocations = new HashMap<>();

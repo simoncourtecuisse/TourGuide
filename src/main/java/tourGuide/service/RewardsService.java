@@ -24,6 +24,7 @@ public class RewardsService {
     private int attractionProximityRange = 200;
 
     private final ExecutorService executorService = Executors.newFixedThreadPool(100);
+    CountDownLatch countDownLatch = new CountDownLatch(0);
 
     public RewardsService(GpsUtilService gpsUtilService, RewardCentral rewardCentral) {
         this.gpsUtilService = gpsUtilService;
@@ -54,21 +55,7 @@ public class RewardsService {
 //		}
 //	}
 
-//    public void calculateRewards(User user) {
-//        List<VisitedLocation> userLocations = user.getVisitedLocations();
-//        List<Attraction> attractions = gpsUtil.getAttractions();
 //
-//        userLocations.stream().forEach(visitedLocation -> {
-//            attractions.stream().forEach(attraction -> {
-//                if (user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
-//                    if (nearAttraction(visitedLocation, attraction)) {
-//                        UserReward addedReward = new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user));
-//                        user.addUserReward(addedReward);
-//                    }
-//                }
-//            });
-//        });
-//    }
 //public List<UserReward> calculateRewards(User user) {
 //    List<VisitedLocation> userLocations = user.getVisitedLocations();
 //    List<Attraction> allAttractions = gpsUtilService.getAttractions();
@@ -108,12 +95,28 @@ public class RewardsService {
                                     int points = getRewardPoints(a, user);
                                     // System.out.println(points);
                                     user.addUserReward(new UserReward(u1, a , points));
+                                    System.out.println(user.getUserRewards().size());
                                 }
                             });
                 })));
         return CompletableFuture.allOf(futureList.toArray(CompletableFuture[]::new));
     }
 
+//    public void calculateRewards(User user) {
+//        List<VisitedLocation> userLocations = user.getVisitedLocations();
+//        List<Attraction> attractions = gpsUtil.getAttractions();
+//
+//        userLocations.stream().forEach(visitedLocation -> {
+//            attractions.stream().forEach(attraction -> {
+//                if (user.getUserRewards().stream().filter(r -> r.attraction.attractionName.equals(attraction.attractionName)).count() == 0) {
+//                    if (nearAttraction(visitedLocation, attraction)) {
+//                        UserReward addedReward = new UserReward(visitedLocation, attraction, getRewardPoints(attraction, user));
+//                        user.addUserReward(addedReward);
+//                    }
+//                }
+//            });
+//        });
+//    }
     public boolean isWithinAttractionProximity(Attraction attraction, Location location) {
         return getDistance(attraction, location) > attractionProximityRange ? false : true;
     }
@@ -139,5 +142,4 @@ public class RewardsService {
         double statuteMiles = STATUTE_MILES_PER_NAUTICAL_MILE * nauticalMiles;
         return statuteMiles;
     }
-
 }
