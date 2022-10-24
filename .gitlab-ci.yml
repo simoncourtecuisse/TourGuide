@@ -1,0 +1,84 @@
+# Adding workflow rules to avoid other branches to use the pipeline
+# since we only want to use the master branch
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == 'develop'
+
+variables:
+  IMAGE_OPENJDK_GRADLE: gradle:7.3.3-jdk17-alpine
+
+stages:
+  - clean
+  - build
+  - test
+  - build-image
+  - publish-image
+  - deploy
+
+clean:
+  image: $IMAGE_OPENJDK_GRADLE
+  stage: clean
+  script:
+    - echo "Cleaning leftovers from previous builds"
+    - sh $CI_PROJECT_DIR/gradlew clean
+
+build:
+  image: $IMAGE_OPENJDK_GRADLE
+  stage: build
+  script:
+    - echo "Compiling the code..."
+    - sh $CI_PROJECT_DIR/gradlew assemble
+  artifacts:
+    paths:
+      - build/libs/blog-*.war
+
+static-code-analysis:
+  image: $IMAGE_OPENJDK_GRADLE
+  stage: test
+  script:
+    - echo "Running Static Code Analysis..."
+    - echo "Checking style..."
+    - sh $CI_PROJECT_DIR/gradlew checkstyleMain
+    - echo "Checking duplicated code..."
+    - sh $CI_PROJECT_DIR/gradlew cpdCheck
+    - echo "Checking bugs..."
+    - sh $CI_PROJECT_DIR/gradlew spotbugsMain
+    - echo "Checking code standard..."
+    - sh $CI_PROJECT_DIR/gradlew pmdMain
+
+unit-test:
+  image: $IMAGE_OPENJDK_GRADLE
+  stage: test
+  script:
+    - echo "Running unit tests..."
+    - sh $CI_PROJECT_DIR/gradlew test -Dspring.profiles.active=test
+
+coverage-test:
+  image: $IMAGE_OPENJDK_GRADLE
+  stage: test
+  needs:
+    - job: unit-test
+  script:
+    - echo "Running coverage tests..."
+
+build-image:
+  stage: build-image
+  script:
+    - echo "Building Docker Image..."
+    - docker build -t $CI_REGISTRY/mjovanc/blog-api:$CI_COMMIT_SHORT_SHA .
+    - docker build -t $CI_REGISTRY/mjovanc/blog-api:latest .
+
+publish-image:
+  stage: publish-image
+  script:
+    - echo "Publishing Docker Image..."
+    - docker login -u mjovanc -p $MJOVANC_CONTAINER_REGISTRY_TOKEN $CI_REGISTRY
+    - docker push $CI_REGISTRY/mjovanc/blog-api:$CI_COMMIT_SHORT_SHA
+    - docker push $CI_REGISTRY/mjovanc/blog-api:latest
+
+# Alternative down stream pipeline to be triggered
+#deploy:
+#  stage: deploy
+#  trigger: mjovanc/blog-iac
