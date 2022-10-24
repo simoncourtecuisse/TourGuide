@@ -1,84 +1,52 @@
-# Adding workflow rules to avoid other branches to use the pipeline
-# since we only want to use the master branch
-workflow:
-  rules:
-    - if: $CI_COMMIT_TAG
-      when: never
-    - if: $CI_COMMIT_BRANCH == 'develop2.1'
+# This file is a template, and might need editing before it works on your project.
+# You can copy and paste this template into a new `.gitlab-ci.yml` file.
+# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
+# To contribute improvements to CI/CD templates, please follow the Development guide at:
+# https://docs.gitlab.com/ee/development/cicd/templates.html
+# This specific template is located at:
+# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Gradle.gitlab-ci.yml
 
-variables:
-  IMAGE_OPENJDK_GRADLE: gradle:7.3.3-jdk17-alpine
+# This is the Gradle build system for JVM applications
+# https://gradle.org/
+# https://github.com/gradle/gradle
 
+image: gradle:alpine
 stages:
-  - clean
   - build
   - test
-  - build-image
-  - publish-image
   - deploy
+# Disable the Gradle daemon for Continuous Integration servers as correctness
+# is usually a priority over speed in CI environments. Using a fresh
+# runtime for each build is more reliable since the runtime is completely
+# isolated from any previous builds.
+variables:
+  GRADLE_OPTS: "-Dorg.gradle.daemon=false"
 
-clean:
-  image: $IMAGE_OPENJDK_GRADLE
-  stage: clean
-  script:
-    - echo "Cleaning leftovers from previous builds"
-    - sh $CI_PROJECT_DIR/gradlew clean
+before_script:
+  - GRADLE_USER_HOME="$(pwd)/.gradle"
+  - export GRADLE_USER_HOME
 
 build:
-  image: $IMAGE_OPENJDK_GRADLE
   stage: build
-  script:
-    - echo "Compiling the code..."
-    - sh $CI_PROJECT_DIR/gradlew assemble
-  artifacts:
+  script: gradle --build-cache assemble
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: push
     paths:
-      - build/libs/blog-*.war
+      - build
+      - .gradle
 
-static-code-analysis:
-  image: $IMAGE_OPENJDK_GRADLE
+test:
   stage: test
-  script:
-    - echo "Running Static Code Analysis..."
-    - echo "Checking style..."
-    - sh $CI_PROJECT_DIR/gradlew checkstyleMain
-    - echo "Checking duplicated code..."
-    - sh $CI_PROJECT_DIR/gradlew cpdCheck
-    - echo "Checking bugs..."
-    - sh $CI_PROJECT_DIR/gradlew spotbugsMain
-    - echo "Checking code standard..."
-    - sh $CI_PROJECT_DIR/gradlew pmdMain
+  script: gradle check
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    policy: pull
+    paths:
+      - build
+      - .gradle
 
-unit-test:
-  image: $IMAGE_OPENJDK_GRADLE
-  stage: test
-  script:
-    - echo "Running unit tests..."
-    - sh $CI_PROJECT_DIR/gradlew test -Dspring.profiles.active=test
-
-coverage-test:
-  image: $IMAGE_OPENJDK_GRADLE
-  stage: test
-  needs:
-    - job: unit-test
-  script:
-    - echo "Running coverage tests..."
-
-build-image:
-  stage: build-image
-  script:
-    - echo "Building Docker Image..."
-    - docker build -t $CI_REGISTRY/mjovanc/blog-api:$CI_COMMIT_SHORT_SHA .
-    - docker build -t $CI_REGISTRY/mjovanc/blog-api:latest .
-
-publish-image:
-  stage: publish-image
-  script:
-    - echo "Publishing Docker Image..."
-    - docker login -u mjovanc -p $MJOVANC_CONTAINER_REGISTRY_TOKEN $CI_REGISTRY
-    - docker push $CI_REGISTRY/mjovanc/blog-api:$CI_COMMIT_SHORT_SHA
-    - docker push $CI_REGISTRY/mjovanc/blog-api:latest
-
-# Alternative down stream pipeline to be triggered
-#deploy:
-#  stage: deploy
-#  trigger: mjovanc/blog-iac
+deploy:
+  stage: deploy
+  script: echo "Define your deployment script!"
+  environment: production
