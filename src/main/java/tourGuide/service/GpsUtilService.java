@@ -3,25 +3,24 @@ package tourGuide.service;
 import gpsUtil.GpsUtil;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
-import org.springframework.stereotype.Service;
 import tourGuide.user.User;
 
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * @author SimonC.
  */
 
-//@Service
 public class GpsUtilService {
     private final GpsUtil gpsUtil;
+    private final ExecutorService executorService = Executors.newFixedThreadPool(100);
 
     public GpsUtilService() {
         this.gpsUtil = new GpsUtil();
     }
-
-    private final ExecutorService executorService = Executors.newFixedThreadPool(100);
 
     public List<Attraction> getAttractions() {
         return gpsUtil.getAttractions();

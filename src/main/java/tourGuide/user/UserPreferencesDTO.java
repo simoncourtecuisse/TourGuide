@@ -1,8 +1,5 @@
 package tourGuide.user;
 
-import org.javamoney.moneta.Money;
-import org.javamoney.moneta.format.MonetaryAmountNumericInformation;
-
 /**
  * @author SimonC.
  */

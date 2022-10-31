@@ -7,7 +7,6 @@ import tourGuide.service.RewardsService;
 import tourGuide.service.TourGuideService;
 import tourGuide.user.User;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,7 +63,7 @@ public class Tracker extends Thread {
 //                break;
 //            }
 //        }
-  @Override
+    @Override
     public void run() {
         while (true) {
             if (Thread.currentThread().isInterrupted() || stop) {
