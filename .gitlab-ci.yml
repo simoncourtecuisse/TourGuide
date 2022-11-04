@@ -1,20 +1,8 @@
-# You can copy and paste this template into a new `.gitlab-ci.yml` file.
-# You should not add this template to an existing `.gitlab-ci.yml` file by using the `include:` keyword.
-# To contribute improvements to CI/CD templates, please follow the Development guide at:
-# https://docs.gitlab.com/ee/development/cicd/templates.html
-# This specific template is located at:
-# https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/ci/templates/Gradle.gitlab-ci.yml
-
-# This is the Gradle build system for JVM applications
-# https://gradle.org/
-# https://github.com/gradle/gradle
-
 image: gradle:6.9.3-jdk11-alpine
 
 stages:
   - build
   - test
-
 
 variables:
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
@@ -34,6 +22,7 @@ build:
   artifacts:
     paths:
       - build/libs/*.jar
+
 test:
   stage: test
   script:
@@ -42,8 +31,8 @@ test:
   cache:
     key: "$CI_COMMIT_REF_NAME"
     policy: pull
+  artifacts:
     paths:
-      - build
-      - .gradle
+      - build/jacocoHtml
 after_script:
   - echo "End CI"
