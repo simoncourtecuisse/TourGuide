@@ -42,6 +42,12 @@ public class TourGuideService {
     boolean testMode = true;
     private Logger logger = LoggerFactory.getLogger(TourGuideService.class);
 
+    /**
+     * TourGuideService, enable or note test mode and initializing users
+     *
+     * @param gpsUtilService   the GpsUtil API
+     * @param rewardsService the RewardsService API
+     */
     public TourGuideService(GpsUtilService gpsUtilService, RewardsService rewardsService) {
         this.gpsUtilService = gpsUtilService;
         this.rewardsService = rewardsService;
@@ -56,17 +62,21 @@ public class TourGuideService {
         addShutDownHook();
     }
 
+    /**
+     * Get the user rewards
+     *
+     * @param user the user
+     * @return rewards of the user
+     */
     public List<UserReward> getUserRewards(User user) {
         return user.getUserRewards();
     }
 
-//    public VisitedLocation getUserLocation(User user) {
-//        VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ?
-//                user.getLastVisitedLocation() :
-//                trackUserLocation(user);
-//        return visitedLocation;
-//    }
-
+    /**
+     * Get location of user
+     * @param user the user to locate
+     * @return the location of the user
+     */
     public VisitedLocation getUserLocation(User user) {
         VisitedLocation visitedLocation = (user.getVisitedLocations().size() > 0) ?
                 user.getLastVisitedLocation() :
@@ -74,21 +84,38 @@ public class TourGuideService {
         return visitedLocation;
     }
 
+    /**
+     * Get user
+     * @param userName the user to get
+     * @return the user
+     */
     public User getUser(String userName) {
-
         return internalUserMap.get(userName);
     }
 
+    /**
+     * Get all users
+     * @return all users
+     */
     public List<User> getAllUsers() {
         return internalUserMap.values().stream().collect(Collectors.toList());
     }
 
+    /**
+     * Add a user
+     * @param user to add
+     */
     public void addUser(User user) {
         if (!internalUserMap.containsKey(user.getUserName())) {
             internalUserMap.put(user.getUserName(), user);
         }
     }
 
+    /**
+     * Get the trip deals, with the username, duration of trip and numbers of adults & children
+     * @param user the user
+     * @return the trip deals
+     */
     public List<Provider> getTripDeals(User user) {
         int cumulativeRewardPoints = user.getUserRewards().stream().mapToInt(i -> i.getRewardPoints()).sum();
 
@@ -103,10 +130,20 @@ public class TourGuideService {
         return providers;
     }
 
+    /**
+     * Get user preferences
+     * @param username the user to get
+     * @return the user preferences
+     */
     public UserPreferences getUserPreferences(String username) {
         return getUser(username).getUserPreferences();
     }
 
+    /**
+     * Update user preferences
+     * @param userPreferencesDTO the user preferences to get
+     * @return the user preferences
+     */
     public UserPreferences updateUserPreferences(UserPreferencesDTO userPreferencesDTO) {
         User user = getUser(userPreferencesDTO.getUsername());
         user.setUserPreferences(new UserPreferences(userPreferencesDTO));
@@ -114,6 +151,11 @@ public class TourGuideService {
         return user.getUserPreferences();
     }
 
+    /**
+     * Track user location with thread and calculate rewards
+     * @param user to track
+     * @return the visited location by user
+     */
     public CompletableFuture<VisitedLocation> trackUserLocation(User user) {
         return gpsUtilService.getUserLocation(user)
                 .thenApply((visitedLocation -> {
@@ -123,6 +165,11 @@ public class TourGuideService {
                 }));
     }
 
+    /**
+     * Get the near attraction
+     * @param user the user
+     * @return the near attractions
+     */
     public List<Attraction> getNearByAttractions(User user) {
         List<Attraction> nearbyAttractions = gpsUtilService.getAttractions();
         VisitedLocation visitedLocation = getUserLocation(user);
@@ -135,6 +182,11 @@ public class TourGuideService {
         return nearbyAttractions;
     }
 
+    /**
+     * Get five near attractions of user
+     * @param visitedLocation the visited location
+     * @return five near attractions
+     */
     public List<Attraction> getFiveAttractions(VisitedLocation visitedLocation) {
         List<Attraction> attractions = gpsUtilService.getAttractions();
 
@@ -144,71 +196,17 @@ public class TourGuideService {
                 .collect(Collectors.toList());
     }
 
-
-//    public RecommendedAttractions getRecommendedAttractions(String username) {
-//        RecommendedAttractions recommendedAttractions = new RecommendedAttractions();
-//        User user = getUser(username);
-//        VisitedLocation visitedLocation = user.getLastVisitedLocation();
-//        Location location = visitedLocation.location;
-//        List<NearByAttraction> attractionsList = new ArrayList<>();
-//
-//        List<Attraction> nearByAttractions = getFiveAttractions(visitedLocation);
-//        for (Attraction attraction : nearByAttractions) {
-//            NearByAttraction nearByAttraction = new NearByAttraction();
-//            nearByAttraction.setAttractionName(attraction.attractionName);
-//            nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
-//            nearByAttraction.setDistance(rewardsService.getDistance(attraction, location));
-//            nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
-//            attractionsList.add(nearByAttraction);
-//        }
-//        recommendedAttractions.setUserLocation(location);
-//        recommendedAttractions.setNearByAttractions(attractionsList);
-//        return recommendedAttractions;
-//    }
-
-//    public RecommendedAttractions getNearFiveAttractions(User user) {
-//        RecommendedAttractions nearByAttractions = new RecommendedAttractions();
-//        nearByAttractions.setNearByAttractions(new ArrayList<>());
-//
-//        VisitedLocation visitedLocation = getUserLocation(user);
-//        nearByAttractions.setUserLocation(visitedLocation.location);
-//
-//        Map<Double, Attraction> nearByAttractionsMap = new TreeMap<>();
-//
-//        List<Attraction> attractions = gpsUtilService.getAttractions();
-//        for (Attraction attraction : attractions) {
-//            nearByAttractionsMap.put(rewardsService.getDistance(attraction, getUserLocation(user).location), attraction);
-//        }
-//
-//        List<Attraction> closest5Attractions = nearByAttractionsMap
-//                .entrySet()
-//                .stream()
-//                .limit(5)
-//                .collect(
-//                        ArrayList::new, (attraction, e) -> attraction.add(e.getValue()), ArrayList::addAll
-//                );
-//
-//        closest5Attractions.forEach(
-//                attraction -> {
-//                    NearByAttraction nearByAttraction = new NearByAttraction();
-//                    nearByAttraction.setAttractionName(attraction.attractionName);
-//                    nearByAttraction.setAttractionLocation(attraction.latitude, attraction.longitude);
-//                    nearByAttraction.setDistance(rewardsService.getDistance(attraction, visitedLocation.location));
-//                    nearByAttraction.setRewardPoints(rewardsService.getRewardPoints(attraction, user));
-//                    nearByAttractions.getNearByAttractions().add(nearByAttraction);
-//                }
-//        );
-//        return nearByAttractions;
-//    }
-
-
-
+    /**
+     * Get all locations of all users
+     * @return all the locations
+     */
     public HashMap<String, Location> getAllCurrentLocations() {
         HashMap<String, Location> allCurrentLocations = new HashMap<>();
         getAllUsers().forEach(user -> allCurrentLocations.put(user.getLastVisitedLocation().userId.toString(), user.getLastVisitedLocation().location));
         System.out.println(getAllUsers());
         return allCurrentLocations;
     }
+
 
     private void addShutDownHook() {
         Runtime.getRuntime().addShutdownHook(new Thread() {
