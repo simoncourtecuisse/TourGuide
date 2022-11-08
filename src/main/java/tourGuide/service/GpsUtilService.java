@@ -11,6 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
+ * This Service manages gpsUtil microservice
+ *
  * @author SimonC.
  */
 
