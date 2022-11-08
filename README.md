@@ -14,7 +14,7 @@ The application will be targeting people looking for package deals on hotel stay
 
 The architecture Overview of TourGuide:
 
-![Screenshot](Diagramme sans nom.drawio.png)
+![Screenshot](Architecture.png)
 
 
 ## To install
