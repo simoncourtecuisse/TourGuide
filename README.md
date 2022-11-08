@@ -23,6 +23,13 @@ The application will be targeting people looking for package deals on hotel stay
 
 - create gradle configuration in IDE for build/run
 
+## Run the application
+
+To start the application, run the command:
+```
+./gradlew bootRun
+```
+
 ## Endpoints
 > **GET** - Index: http://localhost:8080/
 > 
@@ -48,3 +55,30 @@ The application will be targeting people looking for package deals on hotel stay
 > 
 > **GET** - Get User Info: http://localhost:8080/getUser?userName=
 > _Add username after equal sign_
+
+## Tests
+TourGuide has a full integration and unit test suite. You can launch it with the following command:
+
+```
+./gradlew test
+```
+Or for running the tests inside your IDE, follow the link below:
+[Work with tests in Gradle](https://www.jetbrains.com/help/idea/work-with-tests-in-gradle.html#configure_gradle_test_runner).
+
+## Reports
+JaCoCo reporting tools are attached to the gradle configuration. Launch these two commands to run the tools:
+```
+./gradlew jacocoTestReport
+```
+```
+./gradlew jacocoTestCoverageVerification
+```
+
+## Build the application
+
+To build the application, run the command:
+```
+./gradlew bootJar
+```
+
+
