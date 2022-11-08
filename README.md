@@ -24,7 +24,8 @@ The application will be targeting people looking for package deals on hotel stay
 - create gradle configuration in IDE for build/run
 
 ## Endpoints
-> **GET** - Index http://localhost:8080/
+> **GET** - Index
+http://localhost:8080/
 > **GET** - Get User Location http://localhost:8080/getLocation?userName=
 _Add username after equal sign_
 > **GET** - Get nearby attractions http://localhost:8080/getNearbyAttractions?userName=
