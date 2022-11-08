@@ -10,6 +10,12 @@ ____________________
 > -- _TourGuide is a Spring Boot application that has been a centerpiece in the TripMasters app portfolio.
 The application will be targeting people looking for package deals on hotel stays and admissions to various attractions._ --
 
+## Architecture
+
+The architecture Overview of TourGuide:
+
+![Screenshot](Diagramme sans nom.drawio.png)
+
 
 ## To install
 ### Prerequisites
