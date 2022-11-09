@@ -7,8 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import tourGuide.helper.InternalTestHelper;
-import tourGuide.model.NearByAttraction;
-import tourGuide.model.RecommendedAttractions;
 import tourGuide.tracker.Tracker;
 import tourGuide.user.User;
 import tourGuide.user.UserPreferences;
@@ -33,9 +31,9 @@ public class TourGuideService {
      **********************************************************************************/
     private static final String tripPricerApiKey = "test-server-api-key";
     public final Tracker tracker;
-//    private final GpsUtil gpsUtil;
+    //    private final GpsUtil gpsUtil;
     private final RewardsService rewardsService;
-	private final GpsUtilService gpsUtilService;
+    private final GpsUtilService gpsUtilService;
     private final TripPricer tripPricer = new TripPricer();
     // Database connection will be used for external users, but for testing purposes internal users are provided and stored in memory
     private final Map<String, User> internalUserMap = new HashMap<>();
@@ -45,7 +43,7 @@ public class TourGuideService {
     /**
      * TourGuideService, enable or note test mode and initializing users
      *
-     * @param gpsUtilService   the GpsUtil API
+     * @param gpsUtilService the GpsUtil API
      * @param rewardsService the RewardsService API
      */
     public TourGuideService(GpsUtilService gpsUtilService, RewardsService rewardsService) {
@@ -74,6 +72,7 @@ public class TourGuideService {
 
     /**
      * Get location of user
+     *
      * @param user the user to locate
      * @return the location of the user
      */
@@ -86,6 +85,7 @@ public class TourGuideService {
 
     /**
      * Get user
+     *
      * @param userName the user to get
      * @return the user
      */
@@ -95,6 +95,7 @@ public class TourGuideService {
 
     /**
      * Get all users
+     *
      * @return all users
      */
     public List<User> getAllUsers() {
@@ -103,6 +104,7 @@ public class TourGuideService {
 
     /**
      * Add a user
+     *
      * @param user to add
      */
     public void addUser(User user) {
@@ -113,6 +115,7 @@ public class TourGuideService {
 
     /**
      * Get the trip deals, with the username, duration of trip and numbers of adults & children
+     *
      * @param user the user
      * @return the trip deals
      */
@@ -132,6 +135,7 @@ public class TourGuideService {
 
     /**
      * Get user preferences
+     *
      * @param username the user to get
      * @return the user preferences
      */
@@ -141,6 +145,7 @@ public class TourGuideService {
 
     /**
      * Update user preferences
+     *
      * @param userPreferencesDTO the user preferences to get
      * @return the user preferences
      */
@@ -153,6 +158,7 @@ public class TourGuideService {
 
     /**
      * Track user location with thread and calculate rewards
+     *
      * @param user to track
      * @return the visited location by user
      */
@@ -167,6 +173,7 @@ public class TourGuideService {
 
     /**
      * Get the near attraction
+     *
      * @param user the user
      * @return the near attractions
      */
@@ -184,6 +191,7 @@ public class TourGuideService {
 
     /**
      * Get five near attractions of user
+     *
      * @param visitedLocation the visited location
      * @return five near attractions
      */
@@ -198,6 +206,7 @@ public class TourGuideService {
 
     /**
      * Get all locations of all users
+     *
      * @return all the locations
      */
     public HashMap<String, Location> getAllCurrentLocations() {
